@@ -5,6 +5,7 @@ import multiprocessing
 from PIL import ImageTk, Image
 import os
 import shutil
+import time
 
 
 
@@ -16,6 +17,8 @@ bg_b_color = "#ff1a75"
 text_b_color ="black"
 abg_b_color = "white"
 atext_b_color = "#ff1a75"
+
+directory = os.path.dirname(os.path.realpath(__file__))
 
 
 # Melody parameters (GA parameters)
@@ -43,7 +46,7 @@ screen_height = window.winfo_screenheight()
 window.geometry("{}x{}".format(screen_width, screen_height))
 
 window.title("Musical tracks evaluation")
-window.resizable(False, False) # avoid window resize
+
 window.configure(background=bg_color) 
 
 # Font setup
@@ -134,7 +137,7 @@ def window_mel():
         text3_output.grid(row=i+1, column=0, padx=30, sticky="W")
 
         # Buttons used to play the tracks 
-        listen_button = tk.Button(text="Press to listen", fg=text_b_color, bg=bg_b_color, activeforeground=atext_b_color, activebackground=abg_b_color, font=(my_font, size_4), command= lambda y=i: play(y))
+        listen_button = tk.Button(text="Press to listen", fg=text_b_color, bg=bg_b_color, activeforeground=atext_b_color, activebackground=abg_b_color, font=(my_font, size_4), command= lambda y=i: playMelody(y))
         listen_button.grid(row=i+1, column=1, pady=10, padx=20, sticky="W") 
 
         # Buttons for the evaluation of the tracks 
@@ -179,7 +182,7 @@ def window_rhythm():
         text3_output.grid(row=i+1, column=0, padx=30, sticky="W")
 
         # Buttons used to play the tracks 
-        listen_button = tk.Button(text="Press to listen", fg=text_b_color, bg=bg_b_color, activeforeground=atext_b_color, activebackground=abg_b_color, font=(my_font, size_4), command= lambda y=i: play(y))
+        listen_button = tk.Button(text="Press to listen", fg=text_b_color, bg=bg_b_color, activeforeground=atext_b_color, activebackground=abg_b_color, font=(my_font, size_4), command= lambda y=i: playMelody(y))
         listen_button.grid(row=i+1, column=1, pady=10, padx=20, sticky="W") 
 
         # Buttons for the evaluation of the tracks 
@@ -199,8 +202,10 @@ def window_rhythm():
 """             -------------  Ending frame   -------------            """
 
 def window_end():
+    global directory
     
-    img = ImageTk.PhotoImage(Image.open("./images/MusicWallpaper.jpg"))
+    filename = os.path.join(directory, "images", "MusicWallpaper.jpg")
+    img = ImageTk.PhotoImage(Image.open(filename))
     img_panel = tk.Label(window, image = img, highlightthickness = 0, bd = 0)
     
     img_panel.photo = img
@@ -240,18 +245,26 @@ def insert_octaves(i):
 
 
 # Play the melody when the "Press to listen" button is clicked
-def play(k):
+def playMelody(k):
     global playing
     global p
+    global directory
+
     if(playing == True):
         # Interrupt the currently playing melody if the user clicks a "Press to listen" button
         p.terminate()
         playing = False
     
     if(playing == False):
-        p = multiprocessing.Process(target=playsound, args=("./audio/{}indiv.wav".format(k),))
+        filename = os.path.join(directory, "audio", f"{k}indiv.wav")
+        p = multiprocessing.Process(target=playsoundWrapper, args=(filename,))
         p.start()
         playing = True
+
+def playsoundWrapper(filename):
+    time.sleep(1)
+    playsound(filename)
+    time.sleep(1)
     
 
 # Show the currently selected scores for the melodies and rhythms 
@@ -433,14 +446,21 @@ def ok_button_rhythm():
 
 # Download the final melody, with and without rhythm selection
 def download_mel(index, with_rtm):
-    dirName = 'download'
+    global directory
+    dirName = os.path.join(directory, "download")
+    
     if not os.path.exists(dirName):
         os.mkdir(dirName)
-    source = "./audio/{}indiv.wav".format(index)
+
+    source = os.path.join(directory, "audio", f"{index}indiv.wav")
     if with_rtm:
-        destination ="./download/my_melody_rtm.wav"
+        destination = os.path.join(dirName, "my_melody_rtm.wav")
     else:
-        destination ="./download/my_melody.wav"
+        destination = os.path.join(dirName, "my_melody.wav")
+    
+    # make a directory for the plots if it doesn't exist
+    os.makedirs(os.path.dirname(destination), exist_ok=True)
+
     shutil.copy(source, destination)
     
 """

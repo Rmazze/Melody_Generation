@@ -7,6 +7,8 @@ path_mel_ = None
 # Path of the file for the rhythm statistics
 path_rtm_ = None
 
+directory = os.path.dirname(os.path.realpath(__file__))
+
 """
 For each execution of the GA, store in a file the statistics related to the melody evolution:
 - the name of the file depends on the current date and hour
@@ -17,10 +19,15 @@ For each execution of the GA, store in a file the statistics related to the melo
 """
 def write_stat_mel(fv):
     global path_mel_
+    global directory
+
     if path_mel_ == None:
         now = datetime.now()
         current_time = now.strftime("%d%H%M%S")
-        path_mel_ = "./stat/mel/" + current_time + ".txt"
+        path_mel_ = os.path.join(directory, "stat", "mel", f"{current_time}.txt")
+        
+        # make a directory for the plots if it doesn't exist
+        os.makedirs(os.path.dirname(path_mel_), exist_ok=True)
     with open(path_mel_, 'a') as f:
         f.write("{}\t{}\n".format((sum(fv)/len(fv)), max(fv)))
     
@@ -34,10 +41,15 @@ For each execution of the GA, store in a file the statistics related to the rhyt
 """
 def write_stat_rtm(fv):
     global path_rtm_
+    global directory
+
     if path_rtm_ == None:
         now = datetime.now()
         current_time = now.strftime("%d%H%M%S")
-        path_rtm_ = "./stat/rtm/" + current_time + ".txt"
+        path_rtm_ = os.path.join(directory, "stat", "rtm", f"{current_time}.txt")
+        
+        # make a directory for the plots if it doesn't exist
+        os.makedirs(os.path.dirname(path_rtm_), exist_ok=True)
     with open(path_rtm_, 'a') as f:
         f.write("{}\t{}\n".format((sum(fv)/len(fv)), max(fv)))
 
@@ -61,8 +73,12 @@ def mean_length(path):
     mean_len = sum_len_file/num_files
     return mean_len
 
-path_mel = "./stat/mel/"
-path_rtm = "./stat/rtm/"
+path_mel = os.path.join(directory, "stat", "mel")
+path_rtm = os.path.join(directory, "stat", "rtm")
+
+# make a directory for the plots if it doesn't exist
+# os.makedirs(os.path.dirname(path_mel_), exist_ok=True)
+# os.makedirs(os.path.dirname(path_rtm), exist_ok=True)
 
 
 """

@@ -2,6 +2,7 @@ import numpy as np
 import copy
 from NoteList import NoteList
 import wave
+import os
 
 
 """ Compute dynamic crossover probability based on generation number """
@@ -249,16 +250,20 @@ def parent_selection_rhythm(parents, pop_size: int = 5, crossover_prob: float = 
 
 """ Generate the .wav file for each melody """
 def create_audio(pop):
+    directory = os.path.dirname(os.path.realpath(__file__))
+    
     data = []
     for j in range(len(pop)):
         sounds = pop[j].getval()
         # i[0] = note value, i[1] = octave, i[2] = rhythm
         for i in (sounds):
-            w = wave.open("./audio/genetic_melody_" + str(int(i[0])) + "_" + str(int(i[1])) + "_" + str(int(i[2])) + ".wav","rb")
+            filename = os.path.join(directory, "audio", f"genetic_melody_{str(int(i[0]))}_{str(int(i[1]))}_{str(int(i[2]))}.wav")
+            w = wave.open(filename,"rb")
             data.append([w.getparams(), w.readframes(w.getnframes())])
             w.close()
         
-        output = wave.open("./audio/" + str(int(j)) + "indiv.wav", "wb")
+        filename = os.path.join(directory, "audio", f"{str(int(j))}indiv.wav")
+        output = wave.open(filename, "wb")
         output.setparams(data[0][0])
         for i in range(len(data)):
             output.writeframes(data[i][1])

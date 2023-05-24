@@ -1,6 +1,6 @@
 import interface as itf
 import genetic_operators as go
-import statistics as stat
+import melody_statistics as stat
 
 # Global variables (GA parameters)
 std_dev_mel = 2             # Standard deviation for the gaussian sampling in the melody mutation
